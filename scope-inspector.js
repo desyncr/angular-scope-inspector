@@ -5,7 +5,10 @@ var scopeInspectorGetScope = function scopeInspectorGetScopeFunction() {
     copy = {
       __proto__: null
     },
-    hasAngular = 'undefined' !== typeof window.angular ? true : false;
+    editor = 'undefined' !== typeof _getPlainNBS ? true : false,
+    _ = editor ? _getPlainNBS() : window,
+    ng = _.angular,
+    hasAngular = 'undefined' !== _.angular ? true : false;
 
   function makeCopy(scope, full) {
     var copy = {
@@ -47,17 +50,22 @@ var scopeInspectorGetScope = function scopeInspectorGetScopeFunction() {
   }
 
   if (hasAngular) {
-    element = angular.element($0);
+    element = ng.element(_.$0);
     scope = element.scope();
 
-    isolatedScope = isolateScopeAvailable(angular) ? element.isolateScope() : false;
+    isolatedScope = isolateScopeAvailable(ng) ? element.isolateScope() : false;
 
     if (scope) {
-      copy.isIsolatedScope = isolatedScope ? true : false,
-      copy.isInherited = element.hasClass('ng-scope') ? false : true,
-      copy.customProperties = makeCopy(scope, false);
-      copy.fullScope = makeCopy(scope, true);
-      copy.controller = element.controller()['__proto__'];
+      copy.scopeId = scope.$id;
+      copy.siteConfig = makeCopy(scope.siteConfig, false);
+      copy.pageConfig = makeCopy(scope.pageConfig, false);
+      copy.properties = makeCopy(scope, false);
+      copy.$scope = {
+	fullScope: makeCopy(scope, true),
+        controller: element.controller()['__proto__'],
+        isIsolatedScope: isolatedScope ? true : false,
+        isInherited: element.hasClass('ng-scope') ? false : true
+      }
     }
 
   }
